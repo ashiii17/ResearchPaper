@@ -1,0 +1,158 @@
+=====================================================================================
+BENGALURU TEST CHIPS VS ESRI LULC VALIDATION REPORT
+=====================================================================================
+
+[INPUT FILE EXISTENCE CHECK]
+  ✓ Found test file: bengaluru_s2_2024.tif (68.91 MB)
+  ✓ Found test file: bengaluru_ghsl_2018_10m.tif (4.41 MB)
+  ✓ Found test file: bengaluru_ghsl_2020_100m.tif (0.12 MB)
+  ✓ Found Esri tile: tiles/2018/43P_2018.tif (133.25 MB)
+  ✓ Found Esri tile: tiles/2020/43P_2020.tif (137.77 MB)
+  ✓ Found Esri tile: tiles/2024/43P_2024.tif (117.19 MB)
+
+=====================================================================================
+CHECK 1 - FILE BASICS
+=====================================================================================
+
+--- File: bengaluru_s2_2024.tif ---
+  Band Count        : 7
+  Width x Height    : 2415 x 2415 (Total pixels: 5,832,225)
+  Dtype             : uint16
+  CRS               : EPSG:32643
+  Resolution        : 10.0 m x 10.0 m
+  Bounds (WGS84 UTM): Left=769430.00, Bottom=1423360.00, Right=793580.00, Top=1447510.00
+  Band Descriptions : ('B2', 'B3', 'B4', 'B8', 'B11', 'B12', 'n_obs')
+  CRS Validation    : PASSED (Exact EPSG:32643)
+  Bounds Alignment  : PASSED (All coordinates are exact multiples of 10 m)
+
+--- File: bengaluru_ghsl_2018_10m.tif ---
+  Band Count        : 1
+  Width x Height    : 2415 x 2415 (Total pixels: 5,832,225)
+  Dtype             : uint8
+  CRS               : EPSG:32643
+  Resolution        : 10.0 m x 10.0 m
+  Bounds (WGS84 UTM): Left=769430.00, Bottom=1423360.00, Right=793580.00, Top=1447510.00
+  Band Descriptions : ('built_surface',)
+  CRS Validation    : PASSED (Exact EPSG:32643)
+  Bounds Alignment  : PASSED (All coordinates are exact multiples of 10 m)
+
+--- File: bengaluru_ghsl_2020_100m.tif ---
+  Band Count        : 1
+  Width x Height    : 242 x 243 (Total pixels: 58,806)
+  Dtype             : uint16
+  CRS               : EPSG:32643
+  Resolution        : 100.0 m x 100.0 m
+  Bounds (WGS84 UTM): Left=769400.00, Bottom=1423300.00, Right=793600.00, Top=1447600.00
+  Band Descriptions : ('built_surface',)
+  CRS Validation    : PASSED (Exact EPSG:32643)
+  Bounds Alignment  : PASSED (All coordinates are exact multiples of 100 m)
+
+CHECK 1 OVERALL SUMMARY:
+  CRS Confirmation (EPSG:32643)       : PASSED
+  Bounds Multiple Confirmation (10/100m): PASSED
+
+=====================================================================================
+CHECK 2 - SENTINEL-2 QUALITY (bengaluru_s2_2024.tif)
+=====================================================================================
+  Observation Count (n_obs, Band 7) Summary:
+    • Minimum n_obs     : 0
+    • Maximum n_obs     : 45
+    • Mean n_obs        : 34.31
+    • Median n_obs      : 35.0
+    • Pixels with n_obs == 0 : 114,609 (1.9651%)
+    • Pixels with n_obs < 3  : 114,609 (1.9651%)
+
+  Observation Count (n_obs) Histogram Distribution:
+    • Bin 0            :    114,609 pixels (  1.97%)
+    • Bin 1 - 2        :          0 pixels (  0.00%)
+    • Bin 3 - 5        :          0 pixels (  0.00%)
+    • Bin 6 - 10       :          0 pixels (  0.00%)
+    • Bin 11 - 20      :          0 pixels (  0.00%)
+    • Bin > 20         :  5,717,616 pixels ( 98.03%)
+
+  Spectral Bands (B2..B12) Zero-Check:
+    • Pixels where ALL bands (B2..B12) == 0 : 114,609 (1.9651%)
+    • Pixels where ANY band (B2..B12) == 0  : 114,609 (1.9651%)
+    • Note: The 1.9651% zero spectral pixels match exactly with n_obs == 0.
+  ✓ Saved map visualization : checks/n_obs_2024.png (1.29 MB)
+
+=====================================================================================
+CHECK 3 - GRID ALIGNMENT WITH ESRI (tiles/2024/43P_2024.tif)
+=====================================================================================
+  S2 Bounds   : Left=769430.00, Top=1447510.00, Right=793580.00, Bottom=1423360.00
+  Esri Bounds : Left=169260.00, Top=1771250.00, Right=830740.00, Bottom=884300.00
+  (S2 left - Esri left) / 10 = (769430.00 - 169260.00) / 10 = 60017.000000
+  (Esri top - S2 top)   / 10 = (1771250.00 - 1447510.00) / 10 = 32374.000000
+  Left Offset Whole Number Check : PASSED (Exact integer: 60017)
+  Top Offset Whole Number Check  : PASSED (Exact integer: 32374)
+  CRS Identical Check            : PASSED (EPSG:32643)
+  Resolution Identical Check     : PASSED ((10.0, 10.0))
+  Window Shape Identical Check   : PASSED ((2415, 2415))
+
+  Esri 2024 Land Cover Class Distribution in Bengaluru Window:
+  | Code | Class Name          | Pixel Count  | Percentage |
+  | :--- | :------------------ | :----------- | :--------- |
+  |    1 | Water               |       83,004 |    1.4232% |
+  |    2 | Trees               |      114,486 |    1.9630% |
+  |    4 | Flooded vegetation  |        1,639 |    0.0281% |
+  |    5 | Crops               |       32,654 |    0.5599% |
+  |    7 | Built Area          |    5,250,679 |   90.0287% |
+  |    8 | Bare ground         |        5,782 |    0.0991% |
+  |   11 | Rangeland           |      343,981 |    5.8979% |
+
+=====================================================================================
+CHECK 4 - FIRST VALIDATION NUMBER (single city, preliminary)
+=====================================================================================
+
+--- Part (a): GHSL 2018 (10 m) vs Esri 2018 (Matching Window) ---
+  Total Pixels in Window  : 5,832,225
+  Valid Pixels (Esri != 0): 5,832,225 (100.0%)
+  Excluded Pixels (Esri 0): 0 (0.0%)
+
+  Threshold Comparison: [built_surface >= 50]
+    • Confusion Matrix Counts (GHSL=Reference, Esri=Predicted):
+        - True Positive  (TP: Esri=1, GHSL=1) :   1,713,054
+        - False Positive (FP: Esri=1, GHSL=0) :   3,363,528
+        - False Negative (FN: Esri=0, GHSL=1) :       1,395
+        - True Negative  (TN: Esri=0, GHSL=0) :     754,248
+    • Accuracy & Agreement Metrics:
+        - Precision (User's Accuracy)        : 0.3374 (33.74%)
+        - Recall (Producer's Accuracy)       : 0.9992 (99.92%)
+        - F1 Score                           : 0.5045
+        - Intersection over Union (IoU)      : 0.3373 (33.73%)
+        - Overall Agreement (OA)             : 0.4230 (42.30%)
+
+  Threshold Comparison: [built_surface > 0]
+    • Confusion Matrix Counts (GHSL=Reference, Esri=Predicted):
+        - True Positive  (TP: Esri=1, GHSL=1) :   4,416,891
+        - False Positive (FP: Esri=1, GHSL=0) :     659,691
+        - False Negative (FN: Esri=0, GHSL=1) :      40,962
+        - True Negative  (TN: Esri=0, GHSL=0) :     714,681
+    • Accuracy & Agreement Metrics:
+        - Precision (User's Accuracy)        : 0.8701 (87.01%)
+        - Recall (Producer's Accuracy)       : 0.9908 (99.08%)
+        - F1 Score                           : 0.9265
+        - Intersection over Union (IoU)      : 0.8631 (86.31%)
+        - Overall Agreement (OA)             : 0.8799 (87.99%)
+
+--- Part (b): GHSL 2020 (100 m) vs Esri 2020 (Block-Summed 10x10) ---
+  GHSL 2020 100 m Grid Dimensions : 243 rows x 242 cols
+  Esri 2020 10 m Matching Window  : 2430 rows x 2420 cols
+  Window Offset in Esri Tile      : col_off=60014, row_off=32365
+
+  Statistical Comparison (Built Fraction per 100 m cell, [0.0 - 1.0]):
+    • Mean Esri Built Fraction  : 0.8808 (88.08%)
+    • Mean GHSL Built Fraction  : 0.3061 (30.61%)
+    • Mean Absolute Error (MAE) : 0.5754
+    • Pearson Correlation (r)   : 0.5376
+
+-------------------------------------------------------------------------------------
+IMPORTANT INTERPRETATION NOTE:
+This comparison is conducted for a single urban agglomeration (Bengaluru) only.
+Both the GHSL Built Surface and the Esri Sentinel-2 Land Cover products are model-derived
+Earth observation classifications with distinct definitions:
+  - GHSL represents continuous built-up surface area (building footprints, m2 per cell).
+  - Esri Land Cover Class 7 represents categorical Built Area (parcels, roads, structures).
+Consequently, cross-comparison serves strictly as a consistency and alignment check,
+and NOT as definitive ground-truth proof of cartographic accuracy.
+-------------------------------------------------------------------------------------

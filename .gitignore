@@ -1,0 +1,43 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.bak
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Large Raster Datasets and Intermediate Rasters (GeoTIFFs)
+tiles/
+derived/
+labels/
+pilot_s2/
+cell_cache/
+*.tif
+*.tiff
+
+# Archives and Large Compressed Files
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Symlinks and temporary directories
+test_files
+scratch/
+
+# Execution Logs
+*.log

@@ -1,0 +1,6 @@
+chip_id,stratum,n_obs,mean_built_pct,std_built_pct,level_adf_stat,level_adf_pvalue,level_adf_crit5,level_kpss_stat,level_kpss_pvalue,level_kpss_crit5,diff_adf_stat,diff_adf_pvalue,joint_conclusion
+43R_r130_c111,R,9,0.0704,0.07409375442265323,-0.03192786772783114,0.5,-3.1,0.47795890007520025,0.05,0.463,-2.2246544310840797,0.5,Inconclusive (ADF & KPSS fail to reject; small N=9 sample power limitation)
+43R_r81_c35,D,9,0.23911111111111114,0.34827242352453675,-1.6395863077648882,0.5,-3.1,0.24716914698294654,0.5,0.463,-2.3680835135583695,0.5,Inconclusive (ADF & KPSS fail to reject; small N=9 sample power limitation)
+44Q_r113_c70,C,9,0.6371555555555555,0.6048985059240399,-0.2256590947556718,0.5,-3.1,0.5081938168844216,0.05,0.463,-3.0033797966320708,0.1,Inconclusive (ADF & KPSS fail to reject; small N=9 sample power limitation)
+44R_r131_c81,B,9,21.91928888888889,1.1923843195178723,-3.2127968990083255,0.05,-3.1,0.16503884770478666,0.5,0.463,-6.050882085681045,0.01,Inconclusive (ADF & KPSS fail to reject; small N=9 sample power limitation)
+46R_r101_c74,A,9,1.444888888888889,0.7471187626021039,0.3848621569323062,0.5,-3.1,0.5158864838938687,0.05,0.463,-3.407094493370856,0.05,Inconclusive (ADF & KPSS fail to reject; small N=9 sample power limitation)

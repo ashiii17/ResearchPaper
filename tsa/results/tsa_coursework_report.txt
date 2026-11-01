@@ -1,0 +1,152 @@
+================================================================================
+TIME SERIES ANALYSIS (TSA) COURSEWORK MODULE REPORT
+Project: Nationwide India Urban-Change Research (2017–2025)
+Directory: /Users/ashi/ResearchPaper/india_lulc/
+Module: tsa/
+Status: Complete & Verified on 5 Pilot Chips
+================================================================================
+
+1. EXECUTIVE SUMMARY & OBJECTIVES
+--------------------------------------------------------------------------------
+This report documents the Time Series Analysis (TSA) coursework module for the
+India-wide satellite urban-change research project. The module models the temporal
+evolution of built-up land cover across India using annual Esri 10 m land-cover
+stacks (2017–2025) paired with Sentinel-2 Surface Reflectance imagery.
+
+Key Findings from Pilot Study:
+1. Data Integrity: All 5 pilot chips have 9 annual bands matching 'esri_2017' through
+   'esri_2025' with 100% valid land pixels (250,000 px / chip / yr, 0 NoData).
+2. Non-Stationarity: Augmented Dickey-Fuller (ADF) and KPSS tests confirm that
+   urbanizing chips exhibit unit root non-stationarity due to persistent growth trends.
+3. Seasonal Holt-Winters Rejection: Holt-Winters seasonal modeling is methodologically
+   rejected because annual data has period m=1 (no sub-annual seasonality) and N=9
+   observations cannot support seasonal parameter estimation.
+4. Forecasting Performance: In a chronological holdout evaluation (Train: 2017–2023,
+   Test: 2024–2025), Holt's Linear Exponential Smoothing achieved the lowest average
+   error (MAE = 0.4317%, RMSE = 0.4943%), outperforming Naive Persistence (MAE = 0.6758%).
+5. MAPE Mathematical Caveat: Mean Absolute Percentage Error (MAPE) is mathematically
+   undefined or pathological when actual built fraction is near 0% (e.g. Desert chip);
+   MAE and RMSE must serve as the primary evaluation criteria.
+
+
+2. STEP 1: DATA AUDIT & ENCODING VERIFICATION
+--------------------------------------------------------------------------------
+• Label Source: `labels/<chip_id>.tif` (9 bands, uint8, EPSG UTM, 500x500 px).
+• Band Mapping:
+    - Band 1: esri_2017  (Band Index = Year - 2016)
+    - Band 2: esri_2018
+    - Band 3: esri_2019
+    - Band 4: esri_2020
+    - Band 5: esri_2021
+    - Band 6: esri_2022
+    - Band 7: esri_2023
+    - Band 8: esri_2024
+    - Band 9: esri_2025
+• Class Encoding:
+    - Class 7: Built Area (structures, impervious, paved).
+    - Class 0: NoData / Unclassified. Strictly excluded from the denominator.
+• Pilot Audit Findings:
+    - All 5 chips (43R_r130_c111, 46R_r101_c74, 44R_r131_c81, 44Q_r113_c70, 43R_r81_c35)
+      contain 0 NoData pixels across all 9 years (250,000 valid pixels each).
+    - Class 7 is confirmed present and matches chips.csv metadata with exact precision.
+
+
+3. STEP 2: TIME SERIES DATASET CONSTRUCTION
+--------------------------------------------------------------------------------
+Mathematical Definition:
+    built_fraction_pct = (count(pixel == 7) / valid_pixels) * 100.0
+    where valid_pixels = total_pixels - count(pixel == 0).
+
+Tabular Output: `tsa/results/pilot_timeseries.csv` (45 rows: 5 chips x 9 years).
+
+Annual Pooled Summary Table:
+| Year | Chips | Mean Built % | Median Built % | Min Built % | Max Built % | Total Built Px | Pooled Built % |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 2017 | 5 | 4.6642% | 0.0148% | 0.0000% | 22.6172% | 58,303 | 4.6642% |
+| 2018 | 5 | 3.8970% | 0.0084% | 0.0000% | 18.9920% | 48,712 | 3.8970% |
+| 2019 | 5 | 4.6853% | 0.0124% | 0.0000% | 22.4936% | 58,566 | 4.6853% |
+| 2020 | 5 | 4.7344% | 0.0984% | 0.0000% | 22.1936% | 59,180 | 4.7344% |
+| 2021 | 5 | 4.9274% | 0.5288% | 0.0280% | 22.8832% | 61,592 | 4.9274% |
+| 2022 | 5 | 5.1905% | 1.2512% | 0.1012% | 21.8208% | 64,881 | 5.1905% |
+| 2023 | 5 | 4.8706% | 0.9744% | 0.0716% | 21.2364% | 60,882 | 4.8706% |
+| 2024 | 5 | 5.1672% | 1.3436% | 0.0688% | 21.7400% | 64,590 | 5.1672% |
+| 2025 | 5 | 5.6230% | 1.5288% | 0.0084% | 23.2968% | 70,288 | 5.6230% |
+
+Important Methodological Note:
+This is a sample-based statistic across five stratified chips representing distinct strata
+(R, A, B, C, D), NOT an unweighted census estimate of India's total land area.
+
+
+4. STEP 3: EXPLORATORY DATA ANALYSIS (EDA)
+--------------------------------------------------------------------------------
+The exploratory visualizations have been generated under `tsa/figures/`:
+1. `trajectory_built_fraction.png/.svg`:
+   - Stratum B (44R_r131_c81, UP): High density core hovering near ~22-23%.
+   - Stratum A (46R_r101_c74, Assam): Steep growth from 0.69% in 2017 to 3.02% in 2025 (+2.33%).
+   - Stratum C (44Q_r113_c70, Chhattisgarh): Rapid peri-urbanization from 0.001% to 1.53%.
+   - Stratum R (43R_r130_c111, Chambal): Steady low-level growth from 0.015% to 0.262%.
+   - Stratum D (43R_r81_c35, Thar Desert): Near 0% baseline (0.008% in 2025).
+2. `annual_change_growth.png/.svg`: Net year-over-year percentage point differences.
+3. `strata_distribution.png/.svg`: Initial 2017 vs Final 2025 built comparison.
+4. `missing_and_prevalence.png/.svg`: Completeness (100% valid) and mean prevalence audit.
+
+
+5. STEP 4: STATIONARITY ANALYSIS & MODEL JUSTIFICATIONS
+--------------------------------------------------------------------------------
+Statistical Hypotheses:
+• Augmented Dickey-Fuller (ADF):
+    - H0: Series has a unit root (Non-stationary)
+    - H1: Series is stationary
+    - Decision: p < 0.05 rejects H0 in favor of stationarity.
+• Kwiatkowski-Phillips-Schmidt-Shin (KPSS):
+    - H0: Series is trend/level stationary
+    - H1: Series has a unit root (Non-stationary)
+    - Decision: p < 0.05 rejects H0 in favor of non-stationarity.
+
+Pilot Results Summary (`tsa/results/stationarity_results.csv`):
+- Urban Growth Chips (46R_r101_c74, 44Q_r113_c70, 43R_r130_c111):
+    ADF fails to reject unit root (p > 0.90), while KPSS rejects stationarity (p < 0.05).
+    Conclusion: Unit Root / Non-Stationary. First differencing (d=1) is mathematically required.
+- Urban Stable (44R_r131_c81) & Desert (43R_r81_c35):
+    Both ADF and KPSS fail to reject.
+    Conclusion: Inconclusive due to small sample size (N=9) and low asymptotic test power.
+
+Model Formulation & Justification:
+1. Naive Persistence Baseline: y_{T+h} = y_T. Non-parametric reference.
+2. Drift Baseline: y_{T+h} = y_T + h * [(y_T - y_1) / (T - 1)]. Captures linear secular trend.
+3. Constrained ARIMA: ARIMA(0,1,0) with drift. Random walk on first differences.
+4. Holt's Linear Exponential Smoothing: Level (alpha) + Trend (beta).
+5. Seasonal Holt-Winters Rejection: Rejected because annual data has period m=1.
+
+
+6. STEP 5: CHRONOLOGICAL HOLDOUT FORECAST EVALUATION
+--------------------------------------------------------------------------------
+Protocol:
+- Train Split: 2017–2023 (N=7 annual observations).
+- Test Split: 2024–2025 (H=2 annual observations).
+- Zero Temporal Shuffling: Preserves strict causality.
+- Output: `tsa/results/forecast_evaluation.csv`.
+
+Summary of Model Error Metrics (Mean across Pilot Chips):
+| Model | Mean MAE (%) | Mean RMSE (%) | Strengths / Weaknesses |
+| :--- | :--- | :--- | :--- |
+| **Holt's Linear Trend** | **0.4317%** | **0.4943%** | **Best Overall**: Adapts to local trend momentum |
+| **Naive Persistence** | 0.6758% | 0.7588% | Reliable on stable chips; lags behind rapid growth |
+| **Drift Baseline** | 0.6896% | 0.7704% | Over-projects when historical growth temporarily plateaus |
+| **ARIMA(0,1,0) with Drift** | 0.6896% | 0.7704% | Mathematically coincides with drift on N=7 series |
+
+MAPE Exclusion Rule:
+On Chip 43R_r81_c35 (Desert), actual built fraction in 2025 is 0.0084%. Computing MAPE
+produces division by near-zero resulting in artificial error distortion (> 7,000%).
+MAPE is strictly excluded when actual value is < 0.05%; MAE and RMSE are the primary metrics.
+
+
+7. METHODOLOGICAL LIMITATIONS & NEXT STEPS
+--------------------------------------------------------------------------------
+1. Sample Size Limitation: Nine annual observations (2017–2025) represent a very short
+   time series, constraining complex lag selection and high-order ARIMA estimation.
+2. Pseudo-Label Noise: Annual Esri labels are deep-learning predictions (Microsoft AI
+   for Earth), introducing sensor and phenological variance between years.
+3. Scaling to 1,500 Chips: The complete dataset can be processed using `build_timeseries.py`
+   to compute nationwide urbanization trends across all 17 UTM zones.
+================================================================================

@@ -1,0 +1,35 @@
+================================================================================
+TIME SERIES ANALYSIS — DATA AUDIT REPORT
+Scope: FIVE PILOT CHIPS (N=5)
+Project: India Urban-Change Sentinel-2 & Esri LULC Time Series
+Directory: /Users/ashi/ResearchPaper/india_lulc/
+================================================================================
+
+1. LABEL RASTER STRUCTURAL AUDIT
+--------------------------------------------------------------------------------
+Label Band Verification: Expected 9 bands, descriptions ('esri_2017'..'esri_2025').
+Formula: band_index = year - 2016  (Band 1=2017, ..., Band 9=2025).
+
+• Rasters Audited          : 5
+• Structural Checks Passed : 5 / 5
+• Band Descriptions Match  : 100% MATCH
+• Dimension (500x500) Match: 100% MATCH
+
+2. PER-CHIP TEMPORAL TRAJECTORY SUMMARY (CLASS 7 BUILT-UP)
+--------------------------------------------------------------------------------
+Chip ID          | Stratum | Split   | 2017 Built % | 2021 Built % | 2025 Built % | Net Growth %
+----------------------------------------------------------------------------------------
+43R_r130_c111    | R       | train   |     0.0148% |     0.0336% |     0.2620% |    +0.2472%
+46R_r101_c74     | A       | val     |     0.6880% |     1.1632% |     3.0192% |    +2.3312%
+44R_r131_c81     | B       | train   |    22.6172% |    22.8832% |    23.2968% |    +0.6796%
+44Q_r113_c70     | C       | train   |     0.0012% |     0.5288% |     1.5288% |    +1.5276%
+43R_r81_c35      | D       | train   |     0.0000% |     0.0280% |     0.0084% |    +0.0084%
+----------------------------------------------------------------------------------------
+
+3. CLASS ENCODING AND NODATA VERIFICATION
+--------------------------------------------------------------------------------
+• Class 7 (Built Area) Presence: Confirmed present in urbanized chips.
+• Class 0 (NoData) Handling    : Strictly excluded from valid_pixels denominator.
+• Denominator Formula          : valid_pixels = total_pixels - count(pixel == 0).
+• Built-up Fraction Formula    : built_fraction_pct = (count(pixel == 7) / valid_pixels) * 100.0.
+• Sample Status for Pilot      : 5 chips x 9 years = 45 observations across 5 strata.

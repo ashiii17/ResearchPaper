@@ -1,0 +1,194 @@
+================================================================================
+SENTINEL-2 ANNUAL CHIP EXPORT PLAN & REVIEW REPORT
+Project: Nationwide India Urban-Change Research (2017–2025)
+Directory: /Users/ashi/ResearchPaper/india_lulc/
+Script: export_chips_s2.py
+Status: Script Ready; Parameter Verification Passed; Pending User Approval
+================================================================================
+
+1. EXECUTIVE SUMMARY & SYSTEM OVERVIEW
+--------------------------------------------------------------------------------
+This plan establishes the automated Google Earth Engine (GEE) export pipeline
+for extracting 10-meter annual Sentinel-2 Surface Reflectance imagery matching
+the 1,500 stratified 5 km x 5 km chips defined in `chips.csv` and aligned with
+the 9-year label stacks in `labels/<chip_id>.tif`.
+
+Preflight Environment Check:
+- Script Path: /Users/ashi/ResearchPaper/india_lulc/export_chips_s2.py
+- Workspace Free Disk Space: 1.9 GiB on /dev/disk3s5 (Mounted on /System/Volumes/Data)
+- Existing Datasets:
+    • chips.csv: 1,500 chips verified (stratified across R, A, B, C, D)
+    • labels/: 1,500 9-band GeoTIFFs (114 MB, verified 100% complete and valid)
+    • labels_manifest.csv: 1,500 chips verified
+- Task Submission Status: NO tasks submitted to Earth Engine (dry-run validated).
+
+
+2. SCRIPT ARCHITECTURE & OPERATIONAL WORKFLOW
+--------------------------------------------------------------------------------
+The script `export_chips_s2.py` is engineered for strict reproducibility,
+pixel-perfect spatial alignment, robust data-quality filtering, and safe batching.
+
+A. Data Ingestion & Geometry:
+   - Reads `chips.csv` to obtain each chip's native tile, stratum, split, UTM EPSG,
+     and bounding coordinates (x0, y1, lon, lat).
+   - Constructs native UTM planar geometries:
+       ee.Geometry.Rectangle([x0, y1 - 5000, x0 + 5000, y1], proj=f"EPSG:{epsg}", geodesic=False)
+   - Configures exact affine transform:
+       crsTransform = [10.0, 0.0, x0, 0.0, -10.0, y1]
+       dimensions = [500, 500]
+     This enforces identical pixel centroids and boundaries as the label chips.
+
+B. Surface Reflectance Collection & Quality Filtering:
+   - Collection: COPERNICUS/S2_SR_HARMONIZED (harmonized across pre/post-2022 detector offsets).
+   - Filter criteria:
+       1. Spatial intersection: .filterBounds(aoi_geom)
+       2. Temporal window: .filterDate(f"{year}-01-01", f"{year}-12-31")
+       3. Scene cloudiness threshold: CLOUDY_PIXEL_PERCENTAGE < 70
+   - Pixel-level cloud & shadow masking (`mask_s2_sr_clouds`):
+       • QA60 bitmask: Bit 10 (Opaque clouds == 0) and Bit 11 (Cirrus clouds == 0)
+       • Scene Classification Layer (SCL): Rejects SCL values:
+           - 3 = Cloud shadow
+           - 8 = Cloud medium probability
+           - 9 = Cloud high probability
+           - 10 = Thin cirrus
+
+C. Annual Compositing & Missing Observation Handling:
+   - Spectral bands preserved:
+       ['B2', 'B3', 'B4', 'B8', 'B11', 'B12']
+       (Blue 490 nm, Green 560 nm, Red 665 nm, NIR 842 nm, SWIR1 1610 nm, SWIR2 2190 nm)
+   - Annual composite: Pixel-wise median of valid cloud-masked observations across the year.
+   - Observation count band (`n_obs`):
+       n_obs = s2_col.select('B2').count().rename('n_obs')
+     Explicitly records the number of clean, cloud-free observations contributing to each pixel.
+   - Zero-unmasking:
+       composite.unmask(0).toUint16()
+     Missing or unobserved pixels are explicitly set to 0 (NoData). They are NEVER
+     silently interpolated or treated as valid spectral reflectance.
+
+D. Duplicate Prevention & Batch Safety:
+   - Queries `ee.data.getTaskList()` before submission to check for active ('READY', 'RUNNING')
+     or 'COMPLETED' tasks matching description `s2_{chip_id}_{year}`.
+   - Prevents duplicate task submissions and avoids wasting GEE quota.
+   - Keeps authentication credentials out of the codebase by utilizing `ee.Initialize(project=...)`
+     relying on standard Google Cloud SDK authentication (`earthengine authenticate`).
+
+
+3. ARCHITECTURAL DECISION: ANNUAL 7-BAND GeoTIFFs VS. 63-BAND STACK
+--------------------------------------------------------------------------------
+The script defaults to exporting ONE annual 7-band GeoTIFF per chip per year:
+    <chip_id>_<year>.tif  (e.g., 43R_r130_c111_2024.tif)
+    Bands: [B2, B3, B4, B8, B11, B12, n_obs]
+
+Comparison against a monolithic 63/65-band multi-year stack:
+
+| Criteria | Annual 7-Band Files (Recommended) | Multi-Year 63-Band Stack |
+| :--- | :--- | :--- |
+| GEE Memory Limits | Low risk; small, isolated annual computations | High risk; GEE "User memory limit exceeded" |
+| Failure Isolation | Complete; if 1 year fails/retries, 8 years succeed | Zero; single cloud/orbit anomaly fails all 9 years |
+| Training Flexibility | Fast; PyTorch DataLoader loads only requested year | Requires reading & slicing 63-band file in RAM |
+| Dataset Modularity | Easily add 2026+ or backfill without rewriting chips | Must re-export the entire monolithic stack |
+| File Size | ~3.2 MB per file (fits easily in cache) | ~28.8 MB per file |
+| Total GEE Tasks (Nationwide) | 13,500 tasks (easily managed in batches) | 1,500 tasks |
+
+Conclusion: The annual 7-band format guarantees operational robustness and ML training
+modularity without risk of GEE export timeout or memory exhaustion.
+
+
+4. REPRODUCIBLE 5-CHIP PILOT TEST SPECIFICATION
+--------------------------------------------------------------------------------
+To test the entire pipeline end-to-end, five representative chips have been chosen
+reproducibly (the first chip from each stratum R, A, B, C, D in `chips.csv`):
+
+1. Stratum R (Random Unbiased):
+   • Chip ID: 43R_r130_c111 | Split: train | Native Tile: 43R
+   • UTM CRS: EPSG:32643 (UTM Zone 43N)
+   • Origin (x0, y1): (749780, 2894360) | Centroid: 77.5230°E, 26.1240°N (Chambal/Rajasthan border)
+2. Stratum A (Rapid Urban Growth >= 2%):
+   • Chip ID: 46R_r101_c74 | Split: val | Native Tile: 46R
+   • UTM CRS: EPSG:32646 (UTM Zone 46N)
+   • Origin (x0, y1): (564780, 3039360) | Centroid: 93.6809°E, 27.4536°N (Assam Valley)
+3. Stratum B (Urban Stable Core >= 20%):
+   • Chip ID: 44R_r131_c81 | Split: train | Native Tile: 44R
+   • UTM CRS: EPSG:32644 (UTM Zone 44N)
+   • Origin (x0, y1): (599780, 2889360) | Centroid: 82.0228°E, 26.0973°N (Uttar Pradesh)
+4. Stratum C (Low Built / Semi-Urban >= 1%):
+   • Chip ID: 44Q_r113_c70 | Split: train | Native Tile: 44Q
+   • UTM CRS: EPSG:32644 (UTM Zone 44N)
+   • Origin (x0, y1): (528910, 2092470) | Centroid: 81.2983°E, 18.9016°N (Chhattisgarh)
+5. Stratum D (Empty Baseline < 0.1%):
+   • Chip ID: 43R_r81_c35 | Split: train | Native Tile: 43R
+   • UTM CRS: EPSG:32643 (UTM Zone 43N)
+   • Origin (x0, y1): (369780, 3139360) | Centroid: 73.6968°E, 28.3518°N (Thar Desert)
+
+Command for dry-run inspection (no tasks submitted):
+    python3 export_chips_s2.py --pilot-5 --dry-run
+
+Exact command for exporting the 5-chip pilot (requires user's GEE project ID):
+    python3 export_chips_s2.py --pilot-5 --folder india_s2_chips_pilot --project <YOUR_GEE_PROJECT_ID>
+
+
+5. VERIFICATION PROTOCOL (SENTINEL-2 VS. LABEL CHIPS)
+--------------------------------------------------------------------------------
+After downloading exported Sentinel-2 GeoTIFFs from Google Drive, verify their
+spatial and spectral integrity against `labels/<chip_id>.tif` using the built-in
+verification utility:
+
+    python3 export_chips_s2.py --verify-file downloaded/43R_r130_c111_2024.tif
+
+The automated check performs:
+1. Dimension Verification:
+   • Confirms raster shape is exactly (500, 500).
+2. CRS Verification:
+   • Compares rasterio CRS against label chip CRS (e.g., EPSG:32643).
+3. Pixel Resolution & Affine Transform:
+   • Checks pixel dimensions (10.0 m, -10.0 m).
+   • Verifies affine origin (x0, y1) matches label `lbl_src.transform`.
+4. Bounds Check:
+   • Verifies bounding box [x0, y1 - 5000, x0 + 5000, y1] matches label `lbl_src.bounds`.
+5. Band Descriptions & Data Types:
+   • Verifies 7 bands: B2, B3, B4, B8, B11, B12, n_obs.
+   • Verifies dtype is uint16.
+6. Quality & Observation Count:
+   • Checks `n_obs` band statistics: mean observations and percentage of 0-obs pixels.
+   • Zero observations (n_obs == 0) indicate areas with 100% persistent cloud cover.
+
+
+6. STORAGE & TASK COUNT PROJECTIONS
+--------------------------------------------------------------------------------
+Calculation Assumptions:
+- Raster grid: 500 x 500 pixels = 250,000 pixels per chip.
+- Bands: 7 bands (uint16 = 2 bytes per band per pixel).
+- Raw uncompressed size: 250,000 * 7 * 2 bytes = 3,500,000 bytes = ~3.34 MiB (~3.50 MB).
+- Compressed GeoTIFF (Deflate): Average empirical size is ~3.2 MB per chip-year.
+- Temporal span: 9 years (2017–2025).
+
+A. 5-Chip Pilot Export:
+   - Number of chips: 5
+   - Total GeoTIFF files: 5 chips * 9 years = 45 files
+   - Total GEE Export Tasks: 45 tasks
+   - Total Storage Required: 45 * 3.2 MB ≈ 144 MB (0.14 GB)
+   - Runtime estimate: ~5–10 minutes in Earth Engine queue.
+
+B. Nationwide Full Batch (1,500 Chips):
+   - Number of chips: 1,500
+   - Total GeoTIFF files: 1,500 chips * 9 years = 13,500 files
+   - Total GEE Export Tasks: 13,500 tasks
+   - Total Storage Required: 13,500 * 3.2 MB ≈ 43.2 GB (~40.2 GiB)
+   - Recommended Execution Strategy:
+       GEE limits concurrent active tasks in queue (typically 3,000).
+       Batch submission via `--start` and `--end` in chunks of 200 chips (1,800 tasks):
+           python3 export_chips_s2.py --start 0 --end 200 --folder india_s2_chips_v1 --project <PROJECT>
+           python3 export_chips_s2.py --start 200 --end 400 --folder india_s2_chips_v1 --project <PROJECT>
+           ... etc.
+
+
+7. CURRENT STATUS & PENDING APPROVAL
+--------------------------------------------------------------------------------
+- Script Implementation: Completed (`export_chips_s2.py`)
+- Dry-Run Test: Executed and verified clean.
+- Existing Labels & Tiles: Intact (read-only operations preserved).
+- Earth Engine State: No tasks launched, no authentication requested, 0 quota used.
+
+The export pipeline is fully prepared and waiting for user authorization to proceed
+with authentication and launching the 5-chip pilot export.
+================================================================================

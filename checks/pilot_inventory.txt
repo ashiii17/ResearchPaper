@@ -1,0 +1,63 @@
+================================================================================
+SENTINEL-2 PILOT EXPORT INVENTORY REPORT
+Project: India Urban-Change Sentinel-2 Export Validation
+Directory: /Users/ashi/ResearchPaper/india_lulc/
+================================================================================
+
+Expected Pilot Files Count : 45 (5 chips x 9 years: 2017..2025)
+Local Files Found Count    : 45
+Missing Local Files Count  : 0
+Google Drive Remote Folder : india_s2_chips_pilot (ID: 1Ypzy6FtbkB-iFCCwfwapJFww--AyjeG8)
+Remote Files Found in Drive: 45 / 45
+Total Remote Storage Size  : 135.96 MB
+
+--------------------------------------------------------------------------------
+FILE-BY-FILE STATUS BREAKDOWN
+--------------------------------------------------------------------------------
+Filename                  | Stratum | Year  | Local Status    | Drive Status | Drive Size
+-------------------------------------------------------------------------------------
+43R_r130_c111_2017.tif    | R       | 2017  | FOUND_LOCAL     | PRESENT      | 3.06 MB   
+43R_r130_c111_2018.tif    | R       | 2018  | FOUND_LOCAL     | PRESENT      | 3.13 MB   
+43R_r130_c111_2019.tif    | R       | 2019  | FOUND_LOCAL     | PRESENT      | 3.11 MB   
+43R_r130_c111_2020.tif    | R       | 2020  | FOUND_LOCAL     | PRESENT      | 3.10 MB   
+43R_r130_c111_2021.tif    | R       | 2021  | FOUND_LOCAL     | PRESENT      | 3.15 MB   
+43R_r130_c111_2022.tif    | R       | 2022  | FOUND_LOCAL     | PRESENT      | 3.14 MB   
+43R_r130_c111_2023.tif    | R       | 2023  | FOUND_LOCAL     | PRESENT      | 3.15 MB   
+43R_r130_c111_2024.tif    | R       | 2024  | FOUND_LOCAL     | PRESENT      | 3.11 MB   
+43R_r130_c111_2025.tif    | R       | 2025  | FOUND_LOCAL     | PRESENT      | 3.09 MB   
+46R_r101_c74_2017.tif     | A       | 2017  | FOUND_LOCAL     | PRESENT      | 2.84 MB   
+46R_r101_c74_2018.tif     | A       | 2018  | FOUND_LOCAL     | PRESENT      | 2.82 MB   
+46R_r101_c74_2019.tif     | A       | 2019  | FOUND_LOCAL     | PRESENT      | 2.88 MB   
+46R_r101_c74_2020.tif     | A       | 2020  | FOUND_LOCAL     | PRESENT      | 2.88 MB   
+46R_r101_c74_2021.tif     | A       | 2021  | FOUND_LOCAL     | PRESENT      | 2.88 MB   
+46R_r101_c74_2022.tif     | A       | 2022  | FOUND_LOCAL     | PRESENT      | 2.89 MB   
+46R_r101_c74_2023.tif     | A       | 2023  | FOUND_LOCAL     | PRESENT      | 2.86 MB   
+46R_r101_c74_2024.tif     | A       | 2024  | FOUND_LOCAL     | PRESENT      | 2.87 MB   
+46R_r101_c74_2025.tif     | A       | 2025  | FOUND_LOCAL     | PRESENT      | 2.90 MB   
+44R_r131_c81_2017.tif     | B       | 2017  | FOUND_LOCAL     | PRESENT      | 3.04 MB   
+44R_r131_c81_2018.tif     | B       | 2018  | FOUND_LOCAL     | PRESENT      | 3.02 MB   
+44R_r131_c81_2019.tif     | B       | 2019  | FOUND_LOCAL     | PRESENT      | 3.07 MB   
+44R_r131_c81_2020.tif     | B       | 2020  | FOUND_LOCAL     | PRESENT      | 3.01 MB   
+44R_r131_c81_2021.tif     | B       | 2021  | FOUND_LOCAL     | PRESENT      | 3.05 MB   
+44R_r131_c81_2022.tif     | B       | 2022  | FOUND_LOCAL     | PRESENT      | 3.08 MB   
+44R_r131_c81_2023.tif     | B       | 2023  | FOUND_LOCAL     | PRESENT      | 3.08 MB   
+44R_r131_c81_2024.tif     | B       | 2024  | FOUND_LOCAL     | PRESENT      | 3.09 MB   
+44R_r131_c81_2025.tif     | B       | 2025  | FOUND_LOCAL     | PRESENT      | 3.08 MB   
+44Q_r113_c70_2017.tif     | C       | 2017  | FOUND_LOCAL     | PRESENT      | 2.90 MB   
+44Q_r113_c70_2018.tif     | C       | 2018  | FOUND_LOCAL     | PRESENT      | 2.97 MB   
+44Q_r113_c70_2019.tif     | C       | 2019  | FOUND_LOCAL     | PRESENT      | 3.01 MB   
+44Q_r113_c70_2020.tif     | C       | 2020  | FOUND_LOCAL     | PRESENT      | 2.96 MB   
+44Q_r113_c70_2021.tif     | C       | 2021  | FOUND_LOCAL     | PRESENT      | 3.03 MB   
+44Q_r113_c70_2022.tif     | C       | 2022  | FOUND_LOCAL     | PRESENT      | 3.04 MB   
+44Q_r113_c70_2023.tif     | C       | 2023  | FOUND_LOCAL     | PRESENT      | 3.02 MB   
+44Q_r113_c70_2024.tif     | C       | 2024  | FOUND_LOCAL     | PRESENT      | 3.02 MB   
+44Q_r113_c70_2025.tif     | C       | 2025  | FOUND_LOCAL     | PRESENT      | 3.02 MB   
+43R_r81_c35_2017.tif      | D       | 2017  | FOUND_LOCAL     | PRESENT      | 3.09 MB   
+43R_r81_c35_2018.tif      | D       | 2018  | FOUND_LOCAL     | PRESENT      | 3.08 MB   
+43R_r81_c35_2019.tif      | D       | 2019  | FOUND_LOCAL     | PRESENT      | 3.04 MB   
+43R_r81_c35_2020.tif      | D       | 2020  | FOUND_LOCAL     | PRESENT      | 3.06 MB   
+43R_r81_c35_2021.tif      | D       | 2021  | FOUND_LOCAL     | PRESENT      | 3.04 MB   
+43R_r81_c35_2022.tif      | D       | 2022  | FOUND_LOCAL     | PRESENT      | 3.11 MB   
+43R_r81_c35_2023.tif      | D       | 2023  | FOUND_LOCAL     | PRESENT      | 3.06 MB   
+43R_r81_c35_2024.tif      | D       | 2024  | FOUND_LOCAL     | PRESENT      | 3.05 MB   
+43R_r81_c35_2025.tif      | D       | 2025  | FOUND_LOCAL     | PRESENT      | 3.09 MB   

@@ -1,0 +1,64 @@
+=====================================================================================
+READ-ONLY AUDIT OF NATIONWIDE LABEL CHIPS (1,500 CHIPS)
+=====================================================================================
+
+1. CHIP INVENTORY & ID INTEGRITY:
+  • Total rows in chips.csv             : 1,500
+  • Unique chip IDs in chips.csv        : 1,500
+  • Total rows in labels_manifest.csv   : 1,500
+  • Unique chip IDs in labels_manifest  : 1,500
+  • Exact ID set parity (chips vs man) : PASSED (100% Match)
+
+2. GEOTIFF FILE PRESENCE:
+  • Expected label GeoTIFFs             : 1,500
+  • Found label GeoTIFFs on disk        : 1,500
+  • Missing GeoTIFF files               : 0
+  • Status                              : PASSED (All 1,500 .tif files present)
+
+3. GEOTIFF METADATA, GRID & ENCODING AUDIT:
+  • Band count check (exactly 9 bands)  : PASSED (0 errors)
+  • Band description check (esri_2017..): PASSED (0 errors)
+  • Dimensions check (500 x 500 px)     : PASSED (0 errors)
+  • Resolution check (10 m x 10 m)      : PASSED (0 errors)
+  • CRS consistency check (matches UTM) : PASSED (0 errors)
+  • Affine transform check (origin x0,y1): PASSED (0 errors)
+  • NoData tag check (nodata=0)         : PASSED (0 errors)
+
+4. ANNUAL BUILT FRACTIONS & CONSISTENCY AUDIT:
+  • All 9 annual fractions finite       : PASSED
+  • All 9 annual fractions in [0.0, 1.0]: PASSED
+  • Max |built_2017 - built17_frac| diff: 0.00e+00 (PASSED (Exact Match))
+  • Max |built_2025 - built25_frac| diff: 0.00e+00 (PASSED (Exact Match))
+
+5. NODATA PIXEL AUDIT & CHIP INSPECTION:
+  • Total chips with any NoData pixels  : 1 out of 1500
+
+  • Inspected Chip ID                  : 44Q_r0_c124
+      - Total NoData pixels (across 9y) : 28,142 out of 2,250,000 px (1.25%)
+      - Tile / Stratum / Split          : 44Q / A / test
+      - Coordinates (x0, y1)            : 798910.0, 2657470.0
+      - Centroid (Lon, Lat)             : 83.9620°E, 23.9781°N
+        Year 2017: NoData= 3099 ( 1.24%) | Built=  2289 ( 0.92%)
+        Year 2018: NoData= 3099 ( 1.24%) | Built=  2771 ( 1.11%)
+        Year 2019: NoData= 3099 ( 1.24%) | Built=  4623 ( 1.85%)
+        Year 2020: NoData= 3099 ( 1.24%) | Built=  7295 ( 2.92%)
+        Year 2021: NoData= 3099 ( 1.24%) | Built=  5834 ( 2.33%)
+        Year 2022: NoData= 3099 ( 1.24%) | Built=  6592 ( 2.64%)
+        Year 2023: NoData= 2842 ( 1.14%) | Built=  6261 ( 2.50%)
+        Year 2024: NoData= 3353 ( 1.34%) | Built=  7463 ( 2.99%)
+        Year 2025: NoData= 3353 ( 1.34%) | Built=  9503 ( 3.80%)
+
+6. CLASS VALUE 0 SEMANTICS & TRAINING IMPLICATIONS:
+  • Official Esri Dataset Specification : Sentinel-2 10m Land Use/Land Cover Time Series
+  • Designated NoData Value             : 0 (Confirmed: Class 0 is NOT a land cover class)
+  • Valid Land Cover Classes (1-11)     : [1, 2, 4, 5, 7, 8, 9, 10, 11] -> ['Water', 'Trees', 'Flooded vegetation', 'Crops', 'Built Area', 'Bare ground', 'Snow/Ice', 'Clouds', 'Rangeland']
+  • Modeling Implications:
+      1. Class 0 indicates unobserved / out-of-swath / border missing pixels.
+      2. In loss functions (CrossEntropyLoss, FocalLoss), Class 0 MUST be set as ignore_index=0.
+      3. In evaluation metrics (IoU, F1, Accuracy), Class 0 pixels must be masked out to prevent artificial skew.
+      4. Because only 1 out of 1,500 chips contains any class 0 pixels (and only 1.25% of total pixel volume in that chip),
+         the dataset is 99.999% complete valid land cover.
+
+=====================================================================================
+LABEL AUDIT RESULT: PASSED (All 1,500 chips verified, 100% aligned, 0 errors)
+=====================================================================================

@@ -1,0 +1,101 @@
+================================================================================
+DATASET SPLIT AND DATA LEAKAGE AUDIT REPORT
+Project: India Urban-Change Sentinel-2 Deep Learning Baseline
+Source: /Users/ashi/ResearchPaper/india_lulc/chips.csv
+================================================================================
+
+1. NATIONWIDE SPLIT SUMMARY (1,500 CHIPS)
+--------------------------------------------------------------------------------
+  • TRAIN  Split :  1033 chips ( 68.9%)
+  • VAL    Split :   147 chips (  9.8%)
+  • TEST   Split :   320 chips ( 21.3%)
+  • TOTAL        :  1500 chips (100.0%)
+
+2. STRATA COVERAGE ACROSS SPLITS
+--------------------------------------------------------------------------------
+Strata definitions:
+  • R: Random Unbiased (Representative across India landscape)
+  • A: Rapid Growth (Net built gain 2017->2025 >= 2%)
+  • B: Urban Stable Core (Built 2017 >= 20% and growth < 2%)
+  • C: Low Built / Semi-Urban (Built 2017 in [1%, 20%) and growth < 2%)
+  • D: Empty Baseline (Built 2017 < 0.1% and built 2025 < 0.1%)
+
+stratum    A    B    C    D    R   All
+split                                 
+test     103   64   46   21   86   320
+train    355  158  177   69  274  1033
+val       42   28   27   10   40   147
+All      500  250  250  100  400  1500
+
+Percentage of each stratum in train/val/test:
+stratum     A     B     C     D     R
+split                                
+test     20.6  25.6  18.4  21.0  21.5
+train    71.0  63.2  70.8  69.0  68.5
+val       8.4  11.2  10.8  10.0  10.0
+
+
+3. UTM TILE COVERAGE ACROSS SPLITS
+--------------------------------------------------------------------------------
+split  test  train  val   All
+tile                         
+42Q      11     15    3    29
+42R       0     17    5    22
+43P      28     92   22   142
+43Q      47    147   14   208
+43R      40    142   23   205
+43S       6     42    1    49
+44P      20     55    9    84
+44Q      35    141   13   189
+44R      31    140   15   186
+44S       2      5    1     8
+45Q      38     44    6    88
+45R      46    113   20   179
+46P       0      3    3     6
+46Q       7      3    0    10
+46R       8     70   12    90
+47R       1      4    0     5
+All     320   1033  147  1500
+
+
+4. DATA LEAKAGE VERIFICATION
+--------------------------------------------------------------------------------
+  • Train / Validation Overlap : 0 chips (Must be 0)
+  • Train / Test Overlap       : 0 chips (Must be 0)
+  • Validation / Test Overlap  : 0 chips (Must be 0)
+  • Disjoint Split Integrity   : PASSED (Zero Leakage)
+
+5. LEAKAGE PREVENTION GUARDRAILS (METHODOLOGY)
+--------------------------------------------------------------------------------
+  [RULE 1] Normalization Statistics:
+    Channel-wise mean and std must be computed ONLY on training split chips.
+    Validation and test chips must be standardized using training parameters.
+  [RULE 2] Hyperparameter Tuning & Early Stopping:
+    Model checkpoints, learning rate schedules, and thresholds must be chosen
+    strictly based on validation split metrics.
+  [RULE 3] Test Split Quarantine:
+    The test split (320 chips, 21.3%) is completely quarantined and must NEVER
+    be evaluated until the final frozen architecture benchmark report.
+
+6. PILOT DATASET (5 CHIPS) STATISTICAL VALIDITY AUDIT
+--------------------------------------------------------------------------------
+Pilot Chips Metadata:
+Chip ID          | Stratum | Split   | Tile  | Built17 %  | Built25 %  | Growth %  
+---------------------------------------------------------------------------
+43R_r130_c111    | R       | train   | 43R   |     0.01% |     0.26% |     0.25%
+46R_r101_c74     | A       | val     | 46R   |     0.69% |     3.02% |     2.33%
+44R_r131_c81     | B       | train   | 44R   |    22.62% |    23.30% |     0.68%
+44Q_r113_c70     | C       | train   | 44Q   |     0.00% |     1.53% |     1.53%
+43R_r81_c35      | D       | train   | 43R   |     0.00% |     0.01% |     0.01%
+---------------------------------------------------------------------------
+Pilot Split Breakdown: Train=4, Val=1, Test=0
+
+⚠️  STATISTICAL SUFFICIENCY WARNING (PILOT STAGE):
+  • The pilot dataset contains only 4 training chips, 1 validation chip, and 0 test chips.
+  • With N=1 in validation (Assam 46R_r101_c74), validation loss and metrics will suffer
+    from extreme regional variance and cannot represent national performance.
+  • With N=0 in test, unbiased test metrics cannot be computed.
+  • CONCLUSION: The 5-chip pilot is valid STRICTLY for software pipeline smoke testing
+    (testing lazy loading, tensor dimensions, loss convergence, masking, and checkpointing).
+    It is EXPLICITLY INSUFFICIENT for scientific model evaluation or architectural ranking.
+================================================================================

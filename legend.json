@@ -1,0 +1,54 @@
+{
+  "dataset": "Sentinel-2 10m Land Use/Land Cover Time Series",
+  "creators": "Esri, Impact Observatory, and Microsoft",
+  "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+  "resolution_meters": 10,
+  "classes": [
+    {
+      "value": 1,
+      "name": "Water",
+      "description": "Areas where water was predominantly present throughout the year; may not cover areas with sporadic or ephemeral water; contains little to no sparse vegetation, no rock outcrop nor built up features like docks; examples: rivers, ponds, lakes, oceans, flooded salt plains."
+    },
+    {
+      "value": 2,
+      "name": "Trees",
+      "description": "Any significant clustering of tall (~15 feet or higher) dense vegetation, typically with a closed or dense canopy; examples: wooded vegetation, clusters of dense tall vegetation within savannas, plantations, swamp or mangroves."
+    },
+    {
+      "value": 4,
+      "name": "Flooded vegetation",
+      "description": "Areas of any type of vegetation with obvious intermixing of water throughout a majority of the year; seasonally flooded area that is a mix of grass/shrub/trees/bare ground; examples: flooded mangroves, emergent vegetation, rice paddies and other heavily irrigated and inundated agriculture."
+    },
+    {
+      "value": 5,
+      "name": "Crops",
+      "description": "Human planted/plotted cereals, grasses, and crops not at tree height; examples: corn, wheat, soy, fallow plots of structured land."
+    },
+    {
+      "value": 7,
+      "name": "Built Area",
+      "description": "Human made structures; major road and rail networks; large homogenous impervious surfaces including parking structures, office buildings and residential housing; examples: houses, dense villages / towns / cities, paved roads, asphalt."
+    },
+    {
+      "value": 8,
+      "name": "Bare ground",
+      "description": "Areas of rock or soil with very sparse to no vegetation for the entire year; large areas of sand and deserts with no to little vegetation; examples: exposed rock or soil, desert and sand dunes, dry salt flats/pans, dried lake beds, mines."
+    },
+    {
+      "value": 9,
+      "name": "Snow/Ice",
+      "description": "Large homogenous areas of permanent snow or ice, typically only in mountain areas or highest latitudes; examples: glaciers, permanent snowpack, snow fields."
+    },
+    {
+      "value": 10,
+      "name": "Clouds",
+      "description": "No land cover information due to persistent cloud cover."
+    },
+    {
+      "value": 11,
+      "name": "Rangeland",
+      "description": "Open areas covered in homogenous grasses with little to no taller vegetation; wild cereals and grasses with no obvious human plotting; examples: natural meadows and fields with sparse to no tree cover, open savanna with few to no trees, parks/golf courses/lawns, pastures, shrubs and scrubland."
+    }
+  ],
+  "nodata_value": 0
+}
